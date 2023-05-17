@@ -1,4 +1,4 @@
-module go-log
+module github.com/candbright/go-log
 
 go 1.20
 
