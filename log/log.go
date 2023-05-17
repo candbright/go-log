@@ -24,7 +24,7 @@ func Init(opt ...options.Option) error {
 	}
 	logger.SetFormatter(o.Formatter)
 	if o.Path != "" && o.Output == os.Stdout {
-		f, err := os.OpenFile(o.Path, os.O_RDWR|os.O_CREATE, 0755)
+		f, err := os.OpenFile(o.Path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0755)
 		if err != nil {
 			return err
 		}
