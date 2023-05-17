@@ -9,36 +9,48 @@ import (
 var logger *Logger
 
 func Init(opt ...options.Option) error {
+	if logger == nil {
+		l, err := New(opt...)
+		if err != nil {
+			return err
+		}
+		logger = l
+	}
+	return nil
+}
+
+func New(opt ...options.Option) (*Logger, error) {
 	o := options.Default()
 	var err error
 	for _, option := range opt {
 		err = option.Set(&o)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
-	if logger == nil {
-		logger = &Logger{
-			Logger: &logrus.Logger{},
-		}
+	newLogger := &Logger{
+		Logger: &logrus.Logger{},
 	}
-	logger.SetFormatter(o.Formatter)
+	newLogger.SetFormatter(o.Formatter)
 	if o.Path != "" && o.Output == os.Stdout {
 		f, err := os.OpenFile(o.Path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0755)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		logger.SetOutput(f)
+		newLogger.SetOutput(f)
 	} else {
-		logger.SetOutput(o.Output)
+		newLogger.SetOutput(o.Output)
 	}
-	logger.levelFunc = o.LevelFunc
-	return nil
+	newLogger.levelFunc = o.LevelFunc
+	return newLogger, nil
 }
 
 func Instance() *Logger {
 	if logger == nil {
-		return nil
+		err := Init()
+		if err != nil {
+			return nil
+		}
 	}
 	logger.SetLevel(logger.levelFunc())
 	return logger

@@ -6,6 +6,11 @@ import (
 	"testing"
 )
 
+func TestInstance(t *testing.T) {
+	Instance().Error("Error message")
+	Instance().Debug("Debug message")
+}
+
 func TestInit(t *testing.T) {
 	level := logrus.WarnLevel
 	err := Init(options.Level(func() logrus.Level {
