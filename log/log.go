@@ -1,8 +1,8 @@
 package log
 
 import (
+	"github.com/candbright/go-log/options"
 	"github.com/sirupsen/logrus"
-	"go-log/options"
 	"os"
 )
 
