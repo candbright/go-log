@@ -20,16 +20,16 @@ func Path(path string) Option {
 }
 
 type writer struct {
-	output io.Writer
+	Output io.Writer
 }
 
 func (o writer) Set(opt *Options) error {
-	opt.Output = o.output
+	opt.Output = o.Output
 	return nil
 }
 
 func Writer(output io.Writer) Option {
 	return writer{
-		output: output,
+		Output: output,
 	}
 }
