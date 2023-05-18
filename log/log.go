@@ -6,17 +6,13 @@ import (
 	"os"
 )
 
-var logger *Logger
+type Logger struct {
+	*logrus.Logger
+	levelFunc func() logrus.Level
+}
 
-func Init(opt ...options.Option) error {
-	if logger == nil {
-		l, err := New(opt...)
-		if err != nil {
-			return err
-		}
-		logger = l
-	}
-	return nil
+func (logger *Logger) Category(category string) *logrus.Entry {
+	return logger.Logger.WithFields(logrus.Fields{"category": category})
 }
 
 func New(opt ...options.Option) (*Logger, error) {
@@ -29,7 +25,7 @@ func New(opt ...options.Option) (*Logger, error) {
 		}
 	}
 	newLogger := &Logger{
-		Logger: &logrus.Logger{},
+		Logger: logrus.New(),
 	}
 	newLogger.SetFormatter(o.Formatter)
 	if o.Path != "" && o.Output == os.Stdout {
@@ -43,24 +39,4 @@ func New(opt ...options.Option) (*Logger, error) {
 	}
 	newLogger.levelFunc = o.LevelFunc
 	return newLogger, nil
-}
-
-func Instance() *Logger {
-	if logger == nil {
-		err := Init()
-		if err != nil {
-			return nil
-		}
-	}
-	logger.SetLevel(logger.levelFunc())
-	return logger
-}
-
-type Logger struct {
-	*logrus.Logger
-	levelFunc func() logrus.Level
-}
-
-func (logger *Logger) Category(category string) *logrus.Entry {
-	return Instance().Logger.WithFields(logrus.Fields{"category": category})
 }

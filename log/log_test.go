@@ -1,6 +1,7 @@
 package log
 
 import (
+	"errors"
 	"github.com/candbright/go-log/options"
 	"github.com/sirupsen/logrus"
 	"testing"
@@ -9,6 +10,12 @@ import (
 func TestInstance(t *testing.T) {
 	Instance().Error("Error message")
 	Instance().Debug("Debug message")
+}
+
+func TestExported(t *testing.T) {
+	Error("Error message")
+	Debug("Debug message")
+	WithError(errors.New("error happened")).Error("Error message")
 }
 
 func TestInit(t *testing.T) {
