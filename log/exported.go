@@ -21,22 +21,32 @@ func Init(opt ...options.Option) error {
 }
 
 func Instance() *Entry {
+	if InstanceLogger().globalFields != nil {
+		return &Entry{InstanceLogger().WithFields(InstanceLogger().globalFields)}
+	} else {
+		return &Entry{logrus.NewEntry(InstanceLogger().Logger)}
+	}
+}
+
+func InstanceLogger() *Logger {
 	if logger == nil {
 		err := Init()
 		if err != nil {
 			return nil
 		}
 	}
-	logger.SetLevel(logger.levelFunc())
-	if logger.GlobalFields != nil {
-		fields := logrus.Fields{}
-		for k, v := range logger.GlobalFields {
-			fields[k] = v
-		}
-		return &Entry{logger.WithFields(logger.GlobalFields)}
-	} else {
-		return &Entry{logrus.NewEntry(logger.Logger)}
+	if logger.levelFunc != nil {
+		logger.SetLevel(logger.levelFunc())
 	}
+	return logger
+}
+
+func SetGlobalField(key, value string) {
+	InstanceLogger().SetGlobalField(key, value)
+}
+
+func SetGlobalFields(fields map[string]interface{}) {
+	InstanceLogger().SetGlobalFields(fields)
 }
 
 func Category(category string) *logrus.Entry {

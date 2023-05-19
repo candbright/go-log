@@ -29,14 +29,30 @@ func New(opt ...options.Option) (*Logger, error) {
 		newLogger.SetOutput(o.Output)
 	}
 	newLogger.levelFunc = o.LevelFunc
-	newLogger.GlobalFields = o.GlobalFields
+	newLogger.SetGlobalFields(o.GlobalFields)
 	return newLogger, nil
 }
 
 type Logger struct {
 	*logrus.Logger
-	GlobalFields map[string]interface{}
+	globalFields map[string]interface{}
 	levelFunc    func() logrus.Level
+}
+
+func (logger *Logger) SetGlobalField(key, value string) {
+	if logger.globalFields == nil {
+		logger.globalFields = make(map[string]interface{})
+	}
+	logger.globalFields[key] = value
+}
+
+func (logger *Logger) SetGlobalFields(fields map[string]interface{}) {
+	if logger.globalFields == nil {
+		logger.globalFields = make(map[string]interface{})
+	}
+	for k, v := range fields {
+		logger.globalFields[k] = v
+	}
 }
 
 func (logger *Logger) Category(category string) *logrus.Entry {
