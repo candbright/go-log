@@ -12,13 +12,13 @@ func TestInstance(t *testing.T) {
 	Instance().Debug("Debug message")
 }
 
-func TestExported(t *testing.T) {
+func TestExportedMethod(t *testing.T) {
 	Error("Error message")
 	Debug("Debug message")
 	WithError(errors.New("error happened")).Error("Error message")
 }
 
-func TestInit(t *testing.T) {
+func TestLevelOpt(t *testing.T) {
 	level := logrus.WarnLevel
 	err := Init(options.Level(func() logrus.Level {
 		return level
@@ -26,14 +26,33 @@ func TestInit(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	Instance().Category("WarnLevel").Error("Error message")
-	Instance().Category("WarnLevel").Warn("Warn message")
-	Instance().Category("WarnLevel").Info("Info message")
-	Instance().Category("WarnLevel").Debug("Debug message")
+	Category("WarnLevel").Error("Error message")
+	Category("WarnLevel").Warn("Warn message")
+	Category("WarnLevel").Info("Info message")
+	Category("WarnLevel").Debug("Debug message")
 
 	level = logrus.InfoLevel
-	Instance().Category("InfoLevel").Error("Error message")
-	Instance().Category("InfoLevel").Warn("Warn message")
-	Instance().Category("InfoLevel").Info("Info message")
-	Instance().Category("InfoLevel").Debug("Debug message")
+	Category("InfoLevel").Error("Error message")
+	Category("InfoLevel").Warn("Warn message")
+	Category("InfoLevel").Info("Info message")
+	Category("InfoLevel").Debug("Debug message")
+}
+
+func TestGlobalFieldOpt(t *testing.T) {
+	err := Init(options.GlobalField("global", "global value"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	Info("message")
+}
+
+func TestGlobalFieldSOpt(t *testing.T) {
+	err := Init(options.GlobalFields(map[string]interface{}{
+		"global field 1": "1",
+		"global field 2": "2",
+	}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	Info("message")
 }

@@ -7,10 +7,11 @@ import (
 )
 
 type Options struct {
-	LevelFunc func() logrus.Level
-	Formatter logrus.Formatter
-	Output    io.Writer
-	Path      string
+	LevelFunc    func() logrus.Level
+	Formatter    logrus.Formatter
+	Output       io.Writer
+	Path         string
+	GlobalFields map[string]interface{}
 }
 
 func Default() Options {

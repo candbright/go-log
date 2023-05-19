@@ -20,7 +20,7 @@ func Init(opt ...options.Option) error {
 	return nil
 }
 
-func Instance() *Logger {
+func Instance() *Entry {
 	if logger == nil {
 		err := Init()
 		if err != nil {
@@ -28,16 +28,24 @@ func Instance() *Logger {
 		}
 	}
 	logger.SetLevel(logger.levelFunc())
-	return logger
+	if logger.GlobalFields != nil {
+		fields := logrus.Fields{}
+		for k, v := range logger.GlobalFields {
+			fields[k] = v
+		}
+		return &Entry{logger.WithFields(logger.GlobalFields)}
+	} else {
+		return &Entry{logrus.NewEntry(logger.Logger)}
+	}
 }
 
 func Category(category string) *logrus.Entry {
-	return Instance().WithFields(logrus.Fields{"category": category})
+	return Instance().Category(category)
 }
 
 // WithError creates an entry from the standard logger and adds an error to it, using the value defined in ErrorKey as key.
 func WithError(err error) *logrus.Entry {
-	return Instance().WithField(logrus.ErrorKey, err)
+	return Instance().WithError(err)
 }
 
 // WithContext creates an entry from the standard logger and adds a context to it.

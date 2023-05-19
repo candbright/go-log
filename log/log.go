@@ -6,15 +6,6 @@ import (
 	"os"
 )
 
-type Logger struct {
-	*logrus.Logger
-	levelFunc func() logrus.Level
-}
-
-func (logger *Logger) Category(category string) *logrus.Entry {
-	return logger.Logger.WithFields(logrus.Fields{"category": category})
-}
-
 func New(opt ...options.Option) (*Logger, error) {
 	o := options.Default()
 	var err error
@@ -38,5 +29,24 @@ func New(opt ...options.Option) (*Logger, error) {
 		newLogger.SetOutput(o.Output)
 	}
 	newLogger.levelFunc = o.LevelFunc
+	newLogger.GlobalFields = o.GlobalFields
 	return newLogger, nil
+}
+
+type Logger struct {
+	*logrus.Logger
+	GlobalFields map[string]interface{}
+	levelFunc    func() logrus.Level
+}
+
+func (logger *Logger) Category(category string) *logrus.Entry {
+	return logger.WithFields(logrus.Fields{"category": category})
+}
+
+type Entry struct {
+	*logrus.Entry
+}
+
+func (entry *Entry) Category(category string) *logrus.Entry {
+	return entry.WithFields(logrus.Fields{"category": category})
 }
