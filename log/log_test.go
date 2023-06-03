@@ -12,6 +12,16 @@ func TestInstance(t *testing.T) {
 	Instance().Debug("Debug message")
 }
 
+func TestLogger_Config(t *testing.T) {
+	SetGlobalField("global", "test")
+	Info("message before")
+	err := Init(options.Format(&logrus.TextFormatter{}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	Info("message after")
+}
+
 func TestExportedMethod(t *testing.T) {
 	Error("Error message")
 	Debug("Debug message")

@@ -4,32 +4,17 @@ import (
 	"github.com/candbright/go-log/options"
 	"github.com/sirupsen/logrus"
 	"os"
+	"path"
 )
 
 func New(opt ...options.Option) (*Logger, error) {
-	o := options.Default()
-	var err error
-	for _, option := range opt {
-		err = option.Set(&o)
-		if err != nil {
-			return nil, err
-		}
-	}
 	newLogger := &Logger{
 		Logger: logrus.New(),
 	}
-	newLogger.SetFormatter(o.Formatter)
-	if o.Path != "" && o.Output == os.Stdout {
-		f, err := os.OpenFile(o.Path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0755)
-		if err != nil {
-			return nil, err
-		}
-		newLogger.SetOutput(f)
-	} else {
-		newLogger.SetOutput(o.Output)
+	err := newLogger.Config(opt...)
+	if err != nil {
+		return nil, err
 	}
-	newLogger.levelFunc = o.LevelFunc
-	newLogger.SetGlobalFields(o.GlobalFields)
 	return newLogger, nil
 }
 
@@ -37,6 +22,34 @@ type Logger struct {
 	*logrus.Logger
 	globalFields map[string]interface{}
 	levelFunc    func() logrus.Level
+}
+
+func (logger *Logger) Config(opt ...options.Option) error {
+	o := options.Default()
+	var err error
+	for _, option := range opt {
+		err = option.Set(&o)
+		if err != nil {
+			return err
+		}
+	}
+	logger.SetFormatter(o.Formatter)
+	if o.Path != "" && o.Output == os.Stdout {
+		err := os.MkdirAll(path.Dir(o.Path), 0750)
+		if err != nil && !os.IsExist(err) {
+			return err
+		}
+		f, err := os.OpenFile(o.Path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0755)
+		if err != nil {
+			return err
+		}
+		logger.SetOutput(f)
+	} else {
+		logger.SetOutput(o.Output)
+	}
+	logger.levelFunc = o.LevelFunc
+	logger.SetGlobalFields(o.GlobalFields)
+	return nil
 }
 
 func (logger *Logger) SetGlobalField(key, value string) {

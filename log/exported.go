@@ -16,6 +16,11 @@ func Init(opt ...options.Option) error {
 			return err
 		}
 		logger = l
+	} else {
+		err := logger.Config(opt...)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
